@@ -1,0 +1,35 @@
+
+<!DOCTYPE html>
+<html lang="en" ng-app="game">
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+		<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="style.css">
+	</head>
+	<body ng-controller="mainCtrl">
+			<div class="game-metrics">
+				<div class="game-contents">High Score : {{ highScore }}</div>
+				<div class="game-contents">Score : {{ score }}</div>
+				<div class="game-contents">
+					Difficulty Level :
+					<select ng-options="item for item in levels" ng-model="level" ng-change="changeGrids()"></select>
+				</div>
+				<div class="game-contents">Time left : {{ timeLeft }}</div>
+				<div class="game-contents" style="width:10%;">
+					<button class="btn btn-primary" id="startBtn">Start</button>
+				</div>
+			</div>
+
+			<div class="grid-main">
+			  <div style="font-size:24px; text-align:center;">{{ level }}</div>
+			  <div class="grid-container">
+			    <div class="grid-item" id="grid-{{ idx }}" ng-class="{'green': !i.grey}" ng-repeat="(idx, i) in rowColArray"></div>
+			  </div>
+			</div>
+
+			<script src="bower_components/jquery/dist/jquery.min.js"></script>
+			<script src="bower_components/angular/angular.min.js"></script>
+      <script src="app.js"></script>
+	</body>
+</html>
