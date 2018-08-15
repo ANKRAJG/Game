@@ -96,6 +96,7 @@ app.controller("mainCtrl", ['$scope', '$interval', '$timeout', function($scope, 
 
     if(timeLeft == 0) {
       $('.grid-item').removeClass('green');
+      checkForHighScore($scope.score);
       $interval.cancel(promise);
       if (confirm('Game Over !')) {
           startTimer();
@@ -106,7 +107,6 @@ app.controller("mainCtrl", ['$scope', '$interval', '$timeout', function($scope, 
       if($('#grid-' + indexVal).hasClass('green')) {
         $scope.score++;
         document.getElementById("coinAudio").play();
-        checkForHighScore($scope.score);
       }
       else {
         $scope.score--;
@@ -116,6 +116,7 @@ app.controller("mainCtrl", ['$scope', '$interval', '$timeout', function($scope, 
   }
 
   $('#startBtn').on('click', () => {
+    checkForHighScore($scope.score);
     $interval.cancel(promise);
     startTimer();
   });
