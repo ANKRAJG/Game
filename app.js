@@ -2,8 +2,8 @@
 var app = angular.module('game', []);
 app.controller("mainCtrl", ['$scope', '$interval', '$timeout', function($scope, $interval, $timeout) {
 
-  var promise;
-  $scope.highScore = 10;
+  let promise;
+  $scope.highScore = 0;
   $scope.score = 0;
   $scope.timeLeft = 120;
   $scope.level = 'Easy';
@@ -11,15 +11,37 @@ app.controller("mainCtrl", ['$scope', '$interval', '$timeout', function($scope, 
   $scope.rowCol = 9;
   $scope.rowColArray = [];
 
+
+  // Function to create DOM for new matrix
+  changeRowCol = number => {
+      let totalNumber = number * number;
+      let dimension = (300 / number);
+      $('.grid-container').css('grid-template-rows', 'repeat(' + number + ', ' + dimension + 'px)');
+      $('.grid-container').css('grid-template-columns', 'repeat(' + number + ', ' + dimension + 'px)');
+
+      $scope.rowColArray = [];
+      while(totalNumber--) {
+        $scope.rowColArray.push({grey: true});
+      }
+      $timeout(() => {
+        for(var i=0; i<$scope.rowCol; i++) {
+          checkForClick(i, $scope.timeLeft);
+        }
+      });
+  }
+
+  // Getting score from localStorage if High Score is already there
   if(localStorage.getItem('highScore')) {
     $scope.highScore = JSON.parse(localStorage.getItem('highScore'));
   }
 
+  // Making objects for rowColArray
   while($scope.rowCol--) {
     $scope.rowColArray.push({grey: true});
   }
 
-  $scope.changeGrids = function() {
+  // Function to change Matrix Dimensions
+  $scope.changeGrids = () => {
       if($scope.level === 'Easy') {
         $scope.rowCol = 9;
         changeRowCol(3);
@@ -37,18 +59,9 @@ app.controller("mainCtrl", ['$scope', '$interval', '$timeout', function($scope, 
       $('.grid-item').removeClass('green');
       $interval.cancel(promise);
   }
+  $scope.changeGrids();
 
-  function changeRowCol(number) {
-      let totalNumber = number * number;
-      let dimension = (300 / number);
-      $('.grid-container').css('grid-template-rows', 'repeat(' + number + ', ' + dimension + 'px)');
-      $('.grid-container').css('grid-template-columns', 'repeat(' + number + ', ' + dimension + 'px)');
-
-      while(totalNumber--) {
-        $scope.rowColArray.push({grey: true});
-      }
-  }
-
+  // Function to check if the Score is higher than High Score
   checkForHighScore = score => {
     if(score > $scope.highScore) {
       $scope.highScore = score;
@@ -56,9 +69,11 @@ app.controller("mainCtrl", ['$scope', '$interval', '$timeout', function($scope, 
     }
   }
 
-  function startTimer() {
+  startTimer = () => {
     $scope.timeLeft = 120;
-    promise = $interval(function() {
+    $scope.score = 0;
+    var timerVal;
+    promise = $interval(() => {
         let indexVal = 3;
         if($scope.level === 'Easy') {
           indexVal = Math.floor(Math.random() * 9);
@@ -77,23 +92,31 @@ app.controller("mainCtrl", ['$scope', '$interval', '$timeout', function($scope, 
     }, 1000);
   }
 
-  function checkForClick(indexVal, timeLeft) {
+  checkForClick = (indexVal, timeLeft) => {
 
     if(timeLeft == 0) {
       $('.grid-item').removeClass('green');
       $interval.cancel(promise);
-      alert('Game Over !');
+      if (confirm('Game Over !')) {
+          startTimer();
+      }
     }
-    document.getElementById('grid-' + indexVal).onclick = function() {
-      //if($('grid-' + indexVal).hasClass('green')) {
-        $scope.score += 1;
-        console.log('$scope.score = ', $scope.score);
+
+    document.getElementById('grid-' + indexVal).onclick = () => {
+      if($('#grid-' + indexVal).hasClass('green')) {
+        $scope.score++;
+        document.getElementById("coinAudio").play();
         checkForHighScore($scope.score);
-      //}
+      }
+      else {
+        $scope.score--;
+        document.getElementById("failAudio").play();
+      }
     }
   }
 
-  $('#startBtn').on('click', function() {
+  $('#startBtn').on('click', () => {
+    $interval.cancel(promise);
     startTimer();
   });
 
